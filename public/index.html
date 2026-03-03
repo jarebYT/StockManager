@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Application de gestion de stock de boîtiers - Suivi IN/OUT/CURRENT, commandes et sorties">
+  <title>Stock Manager — Gestion de Stock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ─── HEADER ──────────────────────────────────── -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <h1>Stock Manager</h1>
+    </div>
+    <nav class="tab-nav" id="tabNav">
+      <button class="tab-btn active" data-tab="stock" id="tabStock">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Stock
+      </button>
+      <button class="tab-btn" data-tab="orders" id="tabOrders">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Commandes
+      </button>
+      <button class="tab-btn" data-tab="outgoing" id="tabOutgoing">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16l4-4-4-4"/><path d="M20 12H4"/><path d="M4 6v12"/></svg>
+        Sorties
+      </button>
+    </nav>
+  </header>
+
+  <!-- ─── MAIN CONTENT ────────────────────────────── -->
+  <main class="app-main">
+
+    <!-- STOCK TAB -->
+    <section class="tab-content active" id="sectionStock">
+      <div class="section-header">
+        <h2>📦 Stock actuel</h2>
+        <button class="btn btn-primary" id="btnAddProduct">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un produit
+        </button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="summary-cards" id="stockSummary">
+        <div class="summary-card card-in">
+          <div class="card-icon">📥</div>
+          <div class="card-info">
+            <span class="card-label">Total IN</span>
+            <span class="card-value" id="totalIn">0</span>
+          </div>
+        </div>
+        <div class="summary-card card-out">
+          <div class="card-icon">📤</div>
+          <div class="card-info">
+            <span class="card-label">Total OUT</span>
+            <span class="card-value" id="totalOut">0</span>
+          </div>
+        </div>
+        <div class="summary-card card-current">
+          <div class="card-icon">📊</div>
+          <div class="card-info">
+            <span class="card-label">Stock actuel</span>
+            <span class="card-value" id="totalCurrent">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="stockTable">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Catégorie</th>
+              <th class="num">IN</th>
+              <th class="num">OUT</th>
+              <th class="num">CURRENT</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="stockBody"></tbody>
+        </table>
+        <div class="empty-state" id="stockEmpty" style="display:none;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <p>Aucun produit dans le stock</p>
+          <button class="btn btn-ghost" onclick="document.getElementById('btnAddProduct').click()">Ajouter un produit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS TAB -->
+    <section class="tab-content" id="sectionOrders">
+      <div class="section-header">
+        <h2>📋 Commandes (Entrées de stock)</h2>
+        <button class="btn btn-primary" id="btnAddOrder">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouvelle commande
+        </button>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="ordersTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Fournisseur</th>
+              <th>Référence</th>
+              <th>Articles</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+        <div class="empty-state" id="ordersEmpty" style="display:none;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <p>Aucune commande enregistrée</p>
+          <button class="btn btn-ghost" onclick="document.getElementById('btnAddOrder').click()">Ajouter une commande</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTGOING TAB -->
+    <section class="tab-content" id="sectionOutgoing">
+      <div class="section-header">
+        <h2>🚀 Sorties de stock</h2>
+        <button class="btn btn-primary" id="btnAddOutgoing">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouvelle sortie
+        </button>
+      </div>
+
+      <!-- Technician stats cards -->
+      <div class="tech-stats" id="techStats"></div>
+
+      <!-- Technician filter -->
+      <div class="filter-bar">
+        <label for="filterTech">Filtrer par technicien :</label>
+        <select id="filterTech" class="select-input">
+          <option value="">Tous</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="outgoingTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Technicien</th>
+              <th>Client</th>
+              <th>Produit</th>
+              <th class="num">Qté</th>
+              <th>Type</th>
+              <th>Solution</th>
+              <th>N° Ticket</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="outgoingBody"></tbody>
+        </table>
+        <div class="empty-state" id="outgoingEmpty" style="display:none;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 16l4-4-4-4"/><path d="M20 12H4"/></svg>
+          <p>Aucune sortie enregistrée</p>
+          <button class="btn btn-ghost" onclick="document.getElementById('btnAddOutgoing').click()">Ajouter une sortie</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ─── MODALS ──────────────────────────────────── -->
+
+  <!-- Add Product Modal -->
+  <div class="modal-overlay" id="modalProduct">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Ajouter un produit</h3>
+        <button class="modal-close" data-close>&times;</button>
+      </div>
+      <form id="formProduct" class="modal-body">
+        <div class="form-group">
+          <label for="productName">Nom du produit *</label>
+          <input type="text" id="productName" required placeholder="Ex: FMC880" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="productCategory">Catégorie</label>
+          <input type="text" id="productCategory" placeholder="Ex: Tracker GPS" class="form-input">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+          <button type="submit" class="btn btn-primary">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Order Modal -->
+  <div class="modal-overlay" id="modalOrder">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3>Nouvelle commande</h3>
+        <button class="modal-close" data-close>&times;</button>
+      </div>
+      <form id="formOrder" class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="orderSupplier">Fournisseur *</label>
+            <input type="text" id="orderSupplier" required placeholder="Ex: Teltonika" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="orderRef">Référence *</label>
+            <input type="text" id="orderRef" required placeholder="Ex: CMD-2024-001" class="form-input">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="orderDate">Date *</label>
+            <input type="date" id="orderDate" required class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="orderNotes">Notes</label>
+            <input type="text" id="orderNotes" placeholder="Optionnel" class="form-input">
+          </div>
+        </div>
+        <div class="form-divider"></div>
+        <h4>Articles</h4>
+        <div id="orderItems">
+          <div class="order-item-row">
+            <select class="select-input item-product" required>
+              <option value="">-- Produit --</option>
+            </select>
+            <input type="number" class="form-input item-qty" min="1" value="1" placeholder="Qté" required>
+            <button type="button" class="btn btn-icon btn-danger remove-item" title="Retirer" style="visibility:hidden;">&times;</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnAddOrderItem">+ Ajouter un article</button>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer la commande</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Outgoing Modal -->
+  <div class="modal-overlay" id="modalOutgoing">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Nouvelle sortie de stock</h3>
+        <button class="modal-close" data-close>&times;</button>
+      </div>
+      <form id="formOutgoing" class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="outTech">Technicien *</label>
+            <select id="outTech" required class="select-input">
+              <option value="">-- Sélectionner --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="outDate">Date *</label>
+            <input type="date" id="outDate" required class="form-input">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="outClient">Client *</label>
+            <input type="text" id="outClient" required placeholder="Nom du client" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="outTicket">N° de Ticket</label>
+            <input type="text" id="outTicket" placeholder="Ex: TK-12345" class="form-input">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="outProduct">Produit *</label>
+            <select id="outProduct" required class="select-input">
+              <option value="">-- Sélectionner --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="outQty">Quantité *</label>
+            <input type="number" id="outQty" min="1" value="1" required class="form-input">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="outType">Type</label>
+            <input type="text" id="outType" placeholder="Ex: Installation" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="outSolution">Solution</label>
+            <input type="text" id="outSolution" placeholder="Ex: Fleet Management" class="form-input">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer la sortie</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+# Stock Manager — Walkthrough
+
+## Architecture
+
+```
+teststock/
+├── server.js          # Express REST API
+├── db.js              # SQLite schema + seed
+├── package.json
+└── public/
+    ├── index.html     # SPA (3 onglets)
+    ├── style.css      # Dark theme design
+    └── app.js         # Client-side logic
+```
+
+## Fonctionnalités implémentées
+
+### Onglet Stock
+- Cartes résumé : **Total IN**, **Total OUT**, **Stock Actuel**
+- Tableau produits avec badges colorés IN/OUT/CURRENT
+- Ajout/suppression de produits
+
+### Onglet Commandes (Entrées)
+- Formulaire : fournisseur, référence, date, notes
+- Support multi-articles par commande
+- Incrémente automatiquement le IN
+
+### Onglet Sorties
+- Formulaire : technicien, date, client, produit, quantité, type, solution, n° ticket
+- Compteur de sorties par technicien
+- Filtre par technicien
+- Incrémente automatiquement le OUT
+
+### API REST
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/api/products` | Produits + IN/OUT/CURRENT |
+| POST | `/api/products` | Ajouter produit |
+| DELETE | `/api/products/:id` | Supprimer produit |
+| GET/POST/DELETE | `/api/orders` | CRUD commandes |
+| GET/POST/DELETE | `/api/outgoing` | CRUD sorties |
+| GET/POST/DELETE | `/api/technicians` | CRUD techniciens |
+| GET | `/api/technicians/stats` | Stats par technicien |
+
+## Lancement
+
+```bash
+cd teststock
+npm install
+node server.js
+# → http://localhost:3000
+```
+
+## Test — Résultat
+
+Toutes les fonctionnalités testées via browser :
+
+![Stock tab avec données de test](C:/Users/jareb/.gemini/antigravity/brain/16898e9b-c1af-482c-b2f4-8c39202e22fa/stock_screenshot.png)
+
+✅ Ajout de produits (FMC880, FMB920)  
+✅ Création de commandes → IN incrémenté  
+✅ Création de sorties → OUT incrémenté  
+✅ Calcul CURRENT = IN − OUT correct  
+✅ Stats techniciens fonctionnelles  
+✅ Suppression d'entrées  
+
+![Enregistrement du test complet](C:/Users/jareb/.gemini/antigravity/brain/16898e9b-c1af-482c-b2f4-8c39202e22fa/app_full_test_1772553936331.webp)
