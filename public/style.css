@@ -183,7 +183,7 @@ body {
 
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -217,6 +217,7 @@ body {
 .card-in .card-icon { background: var(--green-bg); }
 .card-out .card-icon { background: var(--red-bg); }
 .card-current .card-icon { background: var(--accent-bg); }
+.card-money .card-icon { background: var(--orange-bg); }
 
 .card-info {
   display: flex;
@@ -241,6 +242,7 @@ body {
 .card-in .card-value { color: var(--green); }
 .card-out .card-value { color: var(--red); }
 .card-current .card-value { color: var(--accent); }
+.card-money .card-value { color: var(--text-muted); }
 
 /* ─── TECH STATS ──────────────────────────────── */
 

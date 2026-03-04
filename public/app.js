@@ -236,8 +236,8 @@ async function loadStock() {
           <td class="num"><span class="badge-in">${p.total_in}</span></td>
           <td class="num"><span class="badge-out">${p.total_out}</span></td>
           <td class="num"><span class="badge-current">${p.current_stock}</span></td>
-          <td class="num"><span class="badge-current">${p.price}</span></td>
-          <td class="num"><span class="badge-current">${totalValue}</span></td>
+          <td class="num"><span class="badge-current">${p.price.toFixed(2)} €</span></td>
+          <td class="num"><span class="badge-current">${totalValue.toFixed(2)} €</span></td>
           <td>
             <button class="btn btn-icon btn-danger" onclick="deleteProduct(${p.id})" title="Supprimer">🗑</button>
           </td>
@@ -248,7 +248,8 @@ async function loadStock() {
 
     document.getElementById('totalIn').textContent = totalIn;
     document.getElementById('totalOut').textContent = totalOut;
-    document.getElementById('totalCurrent').textContent = totalCurrent;}
+    document.getElementById('totalCurrent').textContent = totalCurrent;
+    document.getElementById('totalValue').textContent = totalValue.toFixed(2) + ' €';}
 
 // ─── ONGLET COMMANDES ────────────────────────────
 // Rendu des commandes : affiche la liste des commandes ainsi
