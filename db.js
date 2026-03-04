@@ -21,6 +21,7 @@ function initializeDb() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE,
       category TEXT DEFAULT '',
+      price INTEGER NOT NULL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -72,13 +73,16 @@ function initializeDb() {
     );
   `);
 
-  // Seed technicians if table is empty
+  // Initialisation (seed) des techniciens si la table est vide
+  // Ajoute quelques techniciens par défaut pour que l'application
+  // dispose d'options utilisables dès la première exécution.
   const count = db.prepare('SELECT COUNT(*) as c FROM technicians').get();
   if (count.c === 0) {
     const insert = db.prepare('INSERT INTO technicians (name) VALUES (?)');
-    insert.run('Technicien 1');
-    insert.run('Technicien 2');
-    insert.run('Technicien 3');
+    insert.run('Alexandre');
+    insert.run('Grégory');
+    insert.run('William');
+    insert.run('Antonio');
   }
 }
 

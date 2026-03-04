@@ -4,21 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Application de gestion de stock de boîtiers - Suivi IN/OUT/CURRENT, commandes et sorties">
-  <title>Stock Manager — Gestion de Stock</title>
+  <title>GESTION DE STOCK - BUMP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
   <!-- ─── HEADER ──────────────────────────────────── -->
   <header class="app-header">
     <div class="header-left">
       <div class="logo">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-          <line x1="12" y1="22.08" x2="12" y2="12"/>
-        </svg>
+        <img src="logo.png" alt="BUMP Logo" class="logo-img" width="128" height="32">
       </div>
       <h1>Stock Manager</h1>
     </div>
@@ -56,14 +53,14 @@
         <div class="summary-card card-in">
           <div class="card-icon">📥</div>
           <div class="card-info">
-            <span class="card-label">Total IN</span>
+            <span class="card-label">Entrées totales</span>
             <span class="card-value" id="totalIn">0</span>
           </div>
         </div>
         <div class="summary-card card-out">
           <div class="card-icon">📤</div>
           <div class="card-info">
-            <span class="card-label">Total OUT</span>
+            <span class="card-label">Sorties totales</span>
             <span class="card-value" id="totalOut">0</span>
           </div>
         </div>
@@ -82,9 +79,11 @@
             <tr>
               <th>Produit</th>
               <th>Catégorie</th>
-              <th class="num">IN</th>
-              <th class="num">OUT</th>
-              <th class="num">CURRENT</th>
+              <th class="num">Entrées</th>
+              <th class="num">Sorties</th>
+              <th class="num">Stock actuel</th>
+              <th class="num">Prix unitaire</th>
+              <th class="num">Valeur totale</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -213,7 +212,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="orderSupplier">Fournisseur *</label>
-            <input type="text" id="orderSupplier" required placeholder="Ex: Teltonika" class="form-input">
+            <input type="text" id="orderSupplier" required placeholder="Ex: Teltonika" class="form-input" list="supplierList">
           </div>
           <div class="form-group">
             <label for="orderRef">Référence *</label>
@@ -249,6 +248,12 @@
       </form>
     </div>
   </div>
+
+  <datalist id="supplierList">
+    <option value="Teltonika">
+    <option value="Webfleet">
+    <option value="Ruptela">
+  </datalist>
 
   <!-- Add Outgoing Modal -->
   <div class="modal-overlay" id="modalOutgoing">
@@ -295,11 +300,11 @@
         <div class="form-row">
           <div class="form-group">
             <label for="outType">Type</label>
-            <input type="text" id="outType" placeholder="Ex: Installation" class="form-input">
+            <input type="text" id="outType" placeholder="Ex: Préparation matérielle" class="form-input" list="typeList">
           </div>
           <div class="form-group">
             <label for="outSolution">Solution</label>
-            <input type="text" id="outSolution" placeholder="Ex: Fleet Management" class="form-input">
+            <input type="text" id="outSolution" placeholder="Ex: Fleet" class="form-input" list="solutionList">
           </div>
         </div>
         <div class="modal-actions">
@@ -309,6 +314,17 @@
       </form>
     </div>
   </div>
+
+  <datalist id="typeList">
+    <option value="Préparation matérielle">
+    <option value="Ajout camion">
+    <option value="Oubli">
+  </datalist>
+
+  <datalist id="solutionList">
+    <option value="Fleet">
+    <option value="Geo">
+    <option value="Webfleet">
 
   <!-- Toast notifications -->
   <div class="toast-container" id="toastContainer"></div>

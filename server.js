@@ -10,15 +10,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── PRODUCTS ────────────────────────────────────────────────────────
+// ─── PRODUITS (PRODUCTS) ─────────────────────────────────────────────
+// Récupération et gestion des produits : endpoints exposant
+// les informations de stock (entrées, sorties, stock courant).
 
-// Get all products with IN / OUT / CURRENT
+// Récupère tous les produits avec leurs totaux IN / OUT et le
+// stock courant calculé côté serveur pour un affichage agrégé.
 app.get('/api/products', (req, res) => {
     const db = getDb();
     const rows = db.prepare(`
     SELECT
       p.id,
       p.name,
+      p.price,
       p.category,
       COALESCE(i.total_in, 0) AS total_in,
       COALESCE(o.total_out, 0) AS total_out,
@@ -45,14 +49,14 @@ app.get('/api/products', (req, res) => {
     res.json(rows);
 });
 
-// Add a new product
+// Ajoute un nouveau produit : validation et insertion en base.
 app.post('/api/products', (req, res) => {
     const db = getDb();
     const { name, category } = req.body;
     if (!name) return res.status(400).json({ error: 'Le nom du produit est requis' });
     try {
-        const info = db.prepare('INSERT INTO products (name, category) VALUES (?, ?)').run(name, category || '');
-        res.json({ id: info.lastInsertRowid, name, category: category || '' });
+        const info = db.prepare('INSERT INTO products (name, category, price) VALUES (?, ?, ?)').run(name, category || '', 0);
+        res.json({ id: info.lastInsertRowid, name, category: category || '', price: 0 });
     } catch (e) {
         if (e.message.includes('UNIQUE')) {
             return res.status(409).json({ error: 'Ce produit existe déjà' });
@@ -61,7 +65,8 @@ app.post('/api/products', (req, res) => {
     }
 });
 
-// Delete a product
+// Supprime un produit et toutes les lignes associées (ordres,
+// sorties, ajustements) pour maintenir la consistance.
 app.delete('/api/products/:id', (req, res) => {
     const db = getDb();
     try {
@@ -75,7 +80,8 @@ app.delete('/api/products/:id', (req, res) => {
     }
 });
 
-// Adjust stock manually
+// Ajustement manuel du stock : permet d'ajouter une ligne
+// d'ajustement (positif ou négatif) avec raison.
 app.put('/api/stock/:productId', (req, res) => {
     const db = getDb();
     const { adjustment, reason } = req.body;
@@ -85,9 +91,12 @@ app.put('/api/stock/:productId', (req, res) => {
     res.json({ success: true });
 });
 
-// ─── ORDERS (Commandes — entrées de stock) ───────────────────────────
+// ─── COMMANDES (ORDERS) — entrées de stock ---------------------------
+// Endpoints pour lister, créer et supprimer des commandes
+// (entrées de stock). Les commandes contiennent des items détaillés.
 
-// Get all orders
+// Récupère toutes les commandes et, pour chaque commande,
+// assemble aussi les items détaillés associés.
 app.get('/api/orders', (req, res) => {
     const db = getDb();
     const orders = db.prepare(`
@@ -115,7 +124,8 @@ app.get('/api/orders', (req, res) => {
     res.json(result);
 });
 
-// Create an order
+// Crée une commande : insertion transactionnelle de la commande
+// et de ses items pour garantir l'intégrité.
 app.post('/api/orders', (req, res) => {
     const db = getDb();
     const { supplier, reference, order_date, notes, items } = req.body;
@@ -150,7 +160,7 @@ app.post('/api/orders', (req, res) => {
     }
 });
 
-// Delete an order
+// Supprime une commande et ses items associés (cascade logique).
 app.delete('/api/orders/:id', (req, res) => {
     const db = getDb();
     try {
@@ -162,9 +172,12 @@ app.delete('/api/orders/:id', (req, res) => {
     }
 });
 
-// ─── OUTGOING (Sorties de stock) ─────────────────────────────────────
+// ─── SORTIES (OUTGOING) — mouvements sortants -----------------------
+// Endpoints pour gérer les sorties de stock (mouvements sortants)
+// avec filtrage possible par technicien.
 
-// Get all outgoing entries
+// Récupère les sorties, joint les tables techniciens et produits
+// pour fournir des noms lisibles dans la réponse.
 app.get('/api/outgoing', (req, res) => {
     const db = getDb();
     const techId = req.query.technician_id;
@@ -183,7 +196,8 @@ app.get('/api/outgoing', (req, res) => {
     res.json(db.prepare(sql).all(...params));
 });
 
-// Create an outgoing entry
+// Crée une sortie : insère un mouvement sortant en base après
+// validation des champs requis.
 app.post('/api/outgoing', (req, res) => {
     const db = getDb();
     const { technician_id, product_id, date, client, solution, quantity, type, ticket_number } = req.body;
@@ -201,7 +215,7 @@ app.post('/api/outgoing', (req, res) => {
     }
 });
 
-// Delete an outgoing entry
+// Supprime une entrée de sortie.
 app.delete('/api/outgoing/:id', (req, res) => {
     const db = getDb();
     try {
@@ -212,7 +226,9 @@ app.delete('/api/outgoing/:id', (req, res) => {
     }
 });
 
-// ─── TECHNICIANS ─────────────────────────────────────────────────────
+// ─── TECHNICIENS ────────────────────────────────────────────────────
+// Endpoints CRUD simples pour les techniciens et statistiques
+// (nombre de sorties par technicien).
 
 app.get('/api/technicians', (req, res) => {
     const db = getDb();
@@ -245,7 +261,8 @@ app.delete('/api/technicians/:id', (req, res) => {
     }
 });
 
-// Technician stats
+// Statistiques des techniciens : total des sorties par technicien
+// (utilisé pour l'affichage de performance/compteurs).
 app.get('/api/technicians/stats', (req, res) => {
     const db = getDb();
     const rows = db.prepare(`
@@ -259,7 +276,8 @@ app.get('/api/technicians/stats', (req, res) => {
     res.json(rows);
 });
 
-// ─── START ───────────────────────────────────────────────────────────
+// ─── DÉMARRAGE / LANCEMENT DU SERVEUR ───────────────────────────────
+// Démarre le serveur Express et écoute sur le port configuré.
 
 app.listen(PORT, () => {
     console.log(`🚀 Stock Manager running at http://localhost:${PORT}`);

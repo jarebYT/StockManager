@@ -1,14 +1,21 @@
 /* ═══════════════════════════════════════════════
-   Stock Manager — Client-side Application
-   ═══════════════════════════════════════════════ */
+    Stock Manager — Application côté client
+    ═══════════════════════════════════════════════
+    Description : Ce fichier contient toute la logique d'interface
+    (affichage, modales, formulaires, chargement de données et
+    interactions utilisateur) exécutée dans le navigateur.
+*/
 
 const API = '';
 
-// ─── STATE ───────────────────────────────────────
+// ─── ÉTAT ───────────────────────────────────────
+// Variables globales mémorisant l'état applicatif en mémoire
+// (listes de produits et de techniciens utilisées par l'UI).
 let products = [];
 let technicians = [];
 
-// ─── INIT ────────────────────────────────────────
+// ─── INITIALISATION ──────────────────────────────
+// Attache les gestionnaires DOM et charge les données au démarrage.
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initModals();
@@ -16,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAll();
 });
 
-// ─── TABS ────────────────────────────────────────
+// ─── ONGLETS / NAVIGATION ─────────────────────────
+// Gestion des onglets : bascule l'affichage des sections
+// en fonction du bouton activé.
 function initTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -32,9 +41,12 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// ─── MODALS ──────────────────────────────────────
+// ─── MODALES / DIALOGUES ─────────────────────────
+// Initialisation des modales : ouverture, fermeture, interactions
+// et préparation des formulaires avant affichage.
 function initModals() {
-    // Open buttons
+    // Boutons d'ouverture : attache les évènements pour afficher
+    // chaque modale et préparer les sélecteurs si nécessaire.
     document.getElementById('btnAddProduct').addEventListener('click', () => openModal('modalProduct'));
     document.getElementById('btnAddOrder').addEventListener('click', () => {
         populateProductSelects();
@@ -48,21 +60,24 @@ function initModals() {
         openModal('modalOutgoing');
     });
 
-    // Close buttons
+    // Boutons de fermeture : ferme la modale par clic sur les
+    // éléments marqués avec l'attribut `data-close`.
     document.querySelectorAll('[data-close]').forEach(btn => {
         btn.addEventListener('click', () => {
             btn.closest('.modal-overlay').classList.remove('open');
         });
     });
 
-    // Close on overlay click
+    // Fermeture au clic sur l'overlay : si l'utilisateur clique
+    // en dehors du contenu, la modale se ferme.
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) overlay.classList.remove('open');
         });
     });
 
-    // Order item add
+    // Ajout d'une ligne d'article de commande : ajoute dynamiquement
+    // une nouvelle ligne pour spécifier produit + quantité.
     document.getElementById('btnAddOrderItem').addEventListener('click', addOrderItemRow);
 }
 
@@ -79,9 +94,12 @@ function setDefaultDate(inputId) {
     document.getElementById(inputId).value = today;
 }
 
-// ─── FORMS ───────────────────────────────────────
+// ─── FORMULAIRES ──────────────────────────────────
+// Gestion des soumissions des formulaires (produit, commande,
+// sortie) : validation côté client, appel de l'API et feedback.
 function initForms() {
-    // Add product
+    // Ajout de produit : récupère les champs, appelle l'API
+    // pour créer le produit, affiche un message et recharge les données.
     document.getElementById('formProduct').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('productName').value.trim();
@@ -97,7 +115,8 @@ function initForms() {
         }
     });
 
-    // Add order
+    // Ajout de commande : collecte les lignes d'articles, valide
+    // leur contenu, envoie la commande au serveur puis recharge.
     document.getElementById('formOrder').addEventListener('submit', async (e) => {
         e.preventDefault();
         const supplier = document.getElementById('orderSupplier').value.trim();
@@ -129,7 +148,8 @@ function initForms() {
         }
     });
 
-    // Add outgoing
+    // Ajout de sortie (outgoing) : collecte les infos de sortie
+    // (technicien, produit, client...), envoie au serveur.
     document.getElementById('formOutgoing').addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = {
@@ -154,11 +174,14 @@ function initForms() {
         }
     });
 
-    // Technician filter
+    // Filtre par technicien : met à jour l'affichage des sorties
+    // en fonction du technicien sélectionné.
     document.getElementById('filterTech').addEventListener('change', loadOutgoing);
 }
 
-// ─── DATA LOADING ────────────────────────────────
+// ─── CHARGEMENT DES DONNÉES ──────────────────────
+// Fonctions pour récupérer depuis l'API les données requises
+// et les stocker dans l'état local pour affichage.
 async function loadAll() {
     await Promise.all([
         loadProducts(),
@@ -181,13 +204,15 @@ async function loadTechnicians() {
     populateFilterTechnician();
 }
 
-// ─── STOCK TAB ───────────────────────────────────
+// ─── ONGLET STOCK ─────────────────────────────────
+// Rendu du tableau de stock : calcule totaux et génère
+// le HTML des lignes en fonction des données produits reçues.
 async function loadStock() {
     const data = await api('GET', '/api/products');
     const tbody = document.getElementById('stockBody');
     const empty = document.getElementById('stockEmpty');
 
-    let totalIn = 0, totalOut = 0, totalCurrent = 0;
+    let totalIn = 0, totalOut = 0, totalCurrent = 0, totalValue = 0;
 
     if (data.length === 0) {
         tbody.innerHTML = '';
@@ -200,6 +225,8 @@ async function loadStock() {
             totalIn += p.total_in;
             totalOut += p.total_out;
             totalCurrent += p.current_stock;
+            totalValue += p.price * p.current_stock;
+            if (totalValue < 0) totalValue = 0;
             return `
         <tr>
           <td><strong>${esc(p.name)}</strong></td>
@@ -207,6 +234,8 @@ async function loadStock() {
           <td class="num"><span class="badge-in">${p.total_in}</span></td>
           <td class="num"><span class="badge-out">${p.total_out}</span></td>
           <td class="num"><span class="badge-current">${p.current_stock}</span></td>
+          <td class="num"><span class="badge-current">${p.price}</span></td>
+          <td class="num"><span class="badge-current">${totalValue}</span></td>
           <td>
             <button class="btn btn-icon btn-danger" onclick="deleteProduct(${p.id})" title="Supprimer">🗑</button>
           </td>
@@ -218,9 +247,12 @@ async function loadStock() {
     document.getElementById('totalIn').textContent = totalIn;
     document.getElementById('totalOut').textContent = totalOut;
     document.getElementById('totalCurrent').textContent = totalCurrent;
+    document.getElementById('totalValue').textContent = totalValue;
 }
 
-// ─── ORDERS TAB ──────────────────────────────────
+// ─── ONGLET COMMANDES ────────────────────────────
+// Rendu des commandes : affiche la liste des commandes ainsi
+// qu'un résumé des articles associés.
 async function loadOrders() {
     const data = await api('GET', '/api/orders');
     const tbody = document.getElementById('ordersBody');
@@ -248,7 +280,9 @@ async function loadOrders() {
     }
 }
 
-// ─── OUTGOING TAB ────────────────────────────────
+// ─── ONGLET SORTIES ──────────────────────────────
+// Rendu des sorties : affiche les mouvements sortants, option
+// de filtrage par technicien et mise à jour des totaux.
 async function loadOutgoing() {
     const techId = document.getElementById('filterTech').value;
     const url = techId ? `/api/outgoing?technician_id=${techId}` : '/api/outgoing';
@@ -292,7 +326,9 @@ async function loadTechStats() {
   `).join('');
 }
 
-// ─── DELETE ACTIONS ──────────────────────────────
+// ─── ACTIONS DE SUPPRESSION ──────────────────────
+// Fonctions de suppression pour produits, commandes et sorties.
+// Chaque fonction demande confirmation, appelle l'API et recharge.
 async function deleteProduct(id) {
     if (!confirm('Supprimer ce produit et toutes ses données associées ?')) return;
     try {
@@ -326,7 +362,9 @@ async function deleteOutgoing(id) {
     }
 }
 
-// ─── ORDER ITEMS ─────────────────────────────────
+// ─── LIGNES DE COMMANDE (ORDER ITEMS) ───────────
+// Manipulation dynamique des lignes d'articles dans le formulaire
+// de commande (ajout, suppression, réinitialisation).
 function addOrderItemRow() {
     const container = document.getElementById('orderItems');
     const row = document.createElement('div');
@@ -342,7 +380,8 @@ function addOrderItemRow() {
     row.querySelector('.remove-item').addEventListener('click', () => row.remove());
     container.appendChild(row);
 
-    // Show remove buttons when more than 1 row
+    // Affiche le bouton de suppression seulement quand il y a
+    // plus d'une ligne pour éviter de supprimer la dernière ligne.
     updateRemoveButtons();
 }
 
@@ -367,18 +406,22 @@ function resetOrderItems() {
   `;
 }
 
-// ─── POPULATE SELECTS ────────────────────────────
+// ─── REMPLISSAGE DES SÉLECTEURS (SELECTS) ───────
+// Remplit les listes déroulantes de produits et techniciens
+// utilisées dans les formulaires (commande, sortie, filtre).
 function populateProductSelects() {
     const options = products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
 
-    // Order items
+    // Sélecteurs des articles de commande : met à jour les options
+    // disponibles pour chaque ligne d'article.
     document.querySelectorAll('.item-product').forEach(sel => {
         const currentVal = sel.value;
         sel.innerHTML = `<option value="">-- Produit --</option>${options}`;
         sel.value = currentVal;
     });
 
-    // Outgoing product
+    // Sélecteur produit pour les sorties : met la liste des produits
+    // disponibles pour enregistrer une sortie.
     const outProd = document.getElementById('outProduct');
     if (outProd) {
         outProd.innerHTML = `<option value="">-- Sélectionner --</option>${options}`;
@@ -401,7 +444,11 @@ function populateFilterTechnician() {
     sel.value = currentVal;
 }
 
-// ─── HELPERS ─────────────────────────────────────
+// ─── FONCTIONS UTILITAIRES / AIDE ────────────────
+// Fonctions utilitaires partagées : wrapper HTTP, échappement
+// de texte pour le DOM, formatage de date et notification toast.
+// `api` : wrapper pour les requêtes fetch vers l'API backend.
+// Prend la méthode HTTP, l'URL (relative) et un éventuel body.
 async function api(method, url, body) {
     const opts = {
         method,
@@ -415,6 +462,8 @@ async function api(method, url, body) {
     return data;
 }
 
+// `esc` : échappe une chaîne pour l'insérer en toute sécurité
+// dans le DOM afin d'éviter les injections HTML.
 function esc(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -422,12 +471,16 @@ function esc(str) {
     return div.innerHTML;
 }
 
+// `formatDate` : formate une date (YYYY-MM-DD) en représentation
+// lisible pour l'UX en français (JJ/MM/AAAA).
 function formatDate(dateStr) {
     if (!dateStr) return '—';
     const d = new Date(dateStr + 'T00:00:00');
     return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
+// `toast` : affiche une notification temporaire à l'utilisateur.
+// `type` peut être 'success' ou 'error' pour appliquer le style.
 function toast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
     const el = document.createElement('div');

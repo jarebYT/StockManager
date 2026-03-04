@@ -65,7 +65,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 45px;
   height: 64px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
@@ -78,13 +78,12 @@ body {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 40px;
 }
 
 .logo {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--accent), #8b5cf6);
   border-radius: var(--radius);
   display: flex;
   align-items: center;
@@ -247,7 +246,7 @@ body {
 
 .tech-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 14px;
   margin-bottom: 24px;
 }
