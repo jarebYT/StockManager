@@ -190,8 +190,12 @@
           <input type="text" id="productName" required placeholder="Ex: FMC880" class="form-input">
         </div>
         <div class="form-group">
-          <label for="productCategory">Catégorie</label>
-          <input type="text" id="productCategory" placeholder="Ex: Tracker GPS" class="form-input">
+          <label for="productCategory">Catégorie *</label>
+          <input type="text" id="productCategory" required placeholder="Ex: Tracker GPS" class="form-input" list="categoryList">
+        </div>
+        <div class="form-group">
+          <label for="productPrice">Prix</label>
+          <input type="number" id="productPrice" placeholder="Ex: 199.99" class="form-input" step="0.01" min="0">
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" data-close>Annuler</button>
@@ -200,6 +204,12 @@
       </form>
     </div>
   </div>
+
+  <datalist id="categoryList">
+    <option value="Boitier">
+    <option value="Accessoire">
+    <option value="BLE">
+  </datalist>
 
   <!-- Add Order Modal -->
   <div class="modal-overlay" id="modalOrder">

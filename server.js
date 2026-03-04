@@ -52,11 +52,11 @@ app.get('/api/products', (req, res) => {
 // Ajoute un nouveau produit : validation et insertion en base.
 app.post('/api/products', (req, res) => {
     const db = getDb();
-    const { name, category } = req.body;
+    const { name, category, price } = req.body;
     if (!name) return res.status(400).json({ error: 'Le nom du produit est requis' });
     try {
-        const info = db.prepare('INSERT INTO products (name, category, price) VALUES (?, ?, ?)').run(name, category || '', 0);
-        res.json({ id: info.lastInsertRowid, name, category: category || '', price: 0 });
+        const info = db.prepare('INSERT INTO products (name, category, price) VALUES (?, ?, ?)').run(name, category || '', price || 0);
+        res.json({ id: info.lastInsertRowid, name, category: category || '', price: price || 0 });
     } catch (e) {
         if (e.message.includes('UNIQUE')) {
             return res.status(409).json({ error: 'Ce produit existe déjà' });

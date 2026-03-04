@@ -104,8 +104,9 @@ function initForms() {
         e.preventDefault();
         const name = document.getElementById('productName').value.trim();
         const category = document.getElementById('productCategory').value.trim();
+        const price = parseFloat(document.getElementById('productPrice').value) || 0;
         try {
-            await api('POST', '/api/products', { name, category });
+            await api('POST', '/api/products', { name, category, price });
             toast('Produit ajouté avec succès', 'success');
             closeModal('modalProduct');
             e.target.reset();
@@ -227,6 +228,7 @@ async function loadStock() {
             totalCurrent += p.current_stock;
             totalValue += p.price * p.current_stock;
             if (totalValue < 0) totalValue = 0;
+            console.log(`Données du produit ${p.name} : IN=${p.total_in}, OUT=${p.total_out}, CURRENT=${p.current_stock}, PRICE=${p.price}, VALUE=${totalValue}`);
             return `
         <tr>
           <td><strong>${esc(p.name)}</strong></td>
@@ -246,9 +248,7 @@ async function loadStock() {
 
     document.getElementById('totalIn').textContent = totalIn;
     document.getElementById('totalOut').textContent = totalOut;
-    document.getElementById('totalCurrent').textContent = totalCurrent;
-    document.getElementById('totalValue').textContent = totalValue;
-}
+    document.getElementById('totalCurrent').textContent = totalCurrent;}
 
 // ─── ONGLET COMMANDES ────────────────────────────
 // Rendu des commandes : affiche la liste des commandes ainsi
