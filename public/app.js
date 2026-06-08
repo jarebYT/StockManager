@@ -60,6 +60,8 @@ function initModals() {
         openModal('modalOutgoing');
     });
 
+    document.getElementById('btnAddTechnician').addEventListener('click', () => openModal('modalNewTech'));
+
     // Boutons de fermeture : ferme la modale par clic sur les
     // éléments marqués avec l'attribut `data-close`.
     document.querySelectorAll('[data-close]').forEach(btn => {
@@ -178,6 +180,27 @@ function initForms() {
     // Filtre par technicien : met à jour l'affichage des sorties
     // en fonction du technicien sélectionné.
     document.getElementById('filterTech').addEventListener('change', loadOutgoing);
+
+    // Ajout de technicien : récupère le nom, appelle l'API
+    // pour créer le technicien, affiche un message et recharge les données.
+    document.getElementById('formNewTech').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('newTech').value.trim();
+        if (!name) {
+            toast('Veuillez entrer un nom de technicien', 'error');
+            return;
+        }
+        try {
+            await api('POST', '/api/technicians', { name });
+            toast('Technicien ajouté avec succès', 'success');
+            closeModal('modalNewTech');
+            e.target.reset();
+            await loadTechnicians();
+            await loadTechStats();
+        } catch (err) {
+            toast(err.message, 'error');
+        }
+    });
 }
 
 // ─── CHARGEMENT DES DONNÉES ──────────────────────
@@ -321,8 +344,13 @@ async function loadTechStats() {
     const container = document.getElementById('techStats');
     container.innerHTML = data.map(t => `
     <div class="tech-card">
-      <span class="tech-name">👤 ${esc(t.name)}</span>
-      <span class="tech-count">${t.total_out} sortie${t.total_out !== 1 ? 's' : ''}</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div>
+          <span class="tech-name">👤 ${esc(t.name)}</span>
+          <span class="tech-count">${t.total_out} sortie${t.total_out !== 1 ? 's' : ''}</span>
+        </div>
+        <button class="btn btn-icon btn-danger" onclick="deleteTechnician(${t.id})" title="Supprimer">🗑</button>
+      </div>
     </div>
   `).join('');
 }
@@ -358,6 +386,18 @@ async function deleteOutgoing(id) {
         await api('DELETE', `/api/outgoing/${id}`);
         toast('Sortie supprimée', 'success');
         loadAll();
+    } catch (err) {
+        toast(err.message, 'error');
+    }
+}
+
+async function deleteTechnician(id) {
+    if (!confirm('Supprimer ce technicien ?')) return;
+    try {
+        await api('DELETE', `/api/technicians/${id}`);
+        toast('Technicien supprimé', 'success');
+        loadTechnicians();
+        loadTechStats();
     } catch (err) {
         toast(err.message, 'error');
     }

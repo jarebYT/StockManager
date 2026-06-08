@@ -139,10 +139,16 @@
     <section class="tab-content" id="sectionOutgoing">
       <div class="section-header">
         <h2>🚀 Sorties de stock</h2>
-        <button class="btn btn-primary" id="btnAddOutgoing">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nouvelle sortie
-        </button>
+          <div>
+            <button class="btn btn-primary" id="btnAddOutgoing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nouvelle sortie
+            </button>
+            <button class="btn btn-primary" id="btnAddTechnician">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ajouter un technicien
+            </button>
+          </div>
       </div>
 
       <!-- Technician stats cards -->
@@ -327,6 +333,28 @@
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" data-close>Annuler</button>
           <button type="submit" class="btn btn-primary">Enregistrer la sortie</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <!-- Add New Tech -->
+  <div class="modal-overlay" id="modalNewTech">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Nouveau technicien</h3>
+        <button class="modal-close" data-close>&times;</button>
+      </div>
+      <form id="formNewTech" class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newTech">Technicien *</label>
+            <input type="text" id="newTech" placeholder="Nom du technicien" class="form-input">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
       </form>
     </div>
